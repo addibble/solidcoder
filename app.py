@@ -115,7 +115,69 @@ def create_app():
             order_data = {'order_id': order.id, 'product_name': product.name, 'quantity': order.quantity}
             output.append(order_data)
         return jsonify({'orders': output})
-    
+    # Add this route to the existing routes in app.py
+
+@app.route('/inventory_report', methods=['GET'])
+def inventory_report():
+    products = Product.query.all()
+    total_value = 0
+    low_stock_items = []
+    report = []
+
+    for product in products:
+        product_data = {
+            'id': product.id,
+            'name': product.name,
+            'price': product.price,
+            'stock': product.stock
+        }
+        report.append(product_data)
+        total_value += product.price * product.stock
+        if product.stock < 10:
+            low_stock_items.append(product.name)
+
+    response = {
+        'total_products': len(products),
+        'total_value': total_value,
+        'low_stock_items': low_stock_items,
+        'products': report
+    }
+    return jsonify(response)
+
+@app.route('/process_bulk_orders', methods=['POST'])
+def process_bulk_orders():
+    orders = request.get_json().get('orders', [])
+    processed_orders = []
+    total_revenue = 0
+    for order in orders:
+        product = Product.query.get(order['product_id'])
+        if not product:
+            continue  # Skip if product does not exist
+        if product.stock >= order['quantity']:
+            product.stock -= order['quantity']
+            order_total = product.price * order['quantity']
+            total_revenue += order_total
+            processed_orders.append({
+                'product_id': product.id,
+                'quantity': order['quantity'],
+                'order_total': order_total
+            })
+            db.session.add(Order(
+                user_id=current_user.id,
+                product_id=product.id,
+                quantity=order['quantity']
+            ))
+        else:
+            logging.warning(f"Insufficient stock for product {product.id}")
+    db.session.commit()
+
+    response = {
+        'processed_orders': processed_orders,
+        'total_revenue': total_revenue,
+        'message': f"Processed {len(processed_orders)} orders."
+    }
+    return jsonify(response)
+
     # Error handlers
     @app.errorhandler(404)
     def not_found_error(error):
