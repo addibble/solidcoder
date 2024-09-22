@@ -438,3 +438,100 @@ Benefits:
 
 	•	Dependency Inversion Principle: High-level modules do not depend on low-level modules but on abstractions.
 	•	Flexibility: Easily switch between different data sources.
+
+Incorporating Additional Patterns from Remaining Chapters
+
+Let’s integrate some of the patterns and principles from your skill tree into our application, further enhancing it and creating more lessons.
+
+2. Duplicated Code
+
+Code Smell: Similar code appears in multiple services or modules, such as error handling or logging.
+
+Solution Pattern: Decorator Pattern
+
+Implementation:
+
+	•	Create decorators to handle cross-cutting concerns like logging or error handling.
+
+Example:
+# decorators/error_handler.py
+
+Benefits:
+
+	•	DRY Principle: Avoids code duplication by abstracting common functionality.
+	•	Open/Closed Principle: We can add new decorators without modifying the core functions.
+
+3. Feature Envy
+
+Code Smell: A method in one class heavily relies on the internals of another class.
+
+Solution Pattern: Move Method and Visitor Pattern
+
+Implementation:
+
+	•	Identify methods that access data from other classes and move them to the appropriate class.
+
+Example:
+	•	If OrderService is accessing too much of Product’s internals, perhaps some logic should be moved to the Product class.
+
+```
+# models/product.py
+class Product(db.Model):
+    # ... existing fields
+
+    def is_in_stock(self, quantity):
+        return self.stock >= quantity
+```
+
+Modify OrderService:
+```
+class OrderService:
+    def create_order(self, user_id, product_id, quantity):
+        product = self.product_service.get_product_by_id(product_id)
+        if product.is_in_stock(quantity):
+            # Proceed with order
+        else:
+            # Handle out-of-stock scenario
+```
+Benefits:
+
+	•	Encapsulation: Data and related behavior are kept together.
+	•	Law of Demeter: Reduces coupling between classes.
+
+4. Large Class
+
+Code Smell: Classes like OrderService or ProductService have grown too large.
+
+Solution Pattern: Extract Class and Facade Pattern
+
+Implementation:
+
+	•	Break down large classes into smaller, focused classes.
+
+Example:
+
+class InventoryManager:
+    def check_stock(self, product_id, quantity):
+        # Check if the product is in stock
+
+    def update_stock(self, product_id, quantity):
+        # Update the stock after an order
+
+Benefits:
+
+	•	Single Responsibility Principle: Each class has a clear focus.
+	•	Maintainability: Smaller classes are easier to manage and test.
+
+5. Switch Statements
+
+Code Smell: Using switch or if-else statements to handle different types or behaviors, such as payment methods.
+
+Solution Pattern: Strategy Pattern
+
+Implementation:
+
+	•	Define a family of algorithms (strategies) and make them interchangeable.
+
+Example:
+# payment/strategies.py
+

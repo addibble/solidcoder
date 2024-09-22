@@ -7,36 +7,51 @@ from flask_login import LoginManager, login_user, logout_user, login_required, U
 from itsdangerous import URLSafeTimedSerializer
 import logging
 
+from database.sqlalchemy_database import SQLAlchemyDatabase
+from decorators.error_handler import handle_errors
 
-def create_app():
+
+def create_app(config_class=DevelopmentConfig):
+    # Logging configuration
+    logging.basicConfig(filename='app.log', level=logging.INFO)
+
     app = Flask(__name__)
-
-    app.config.from_object('config.Config')
+    app.config.from_object(config_class)
 
     # Initialize Database
     database = DatabaseFactory.create_database(app.config)
 
-    # Pass the database instance to services or repositories
-    product_repository = ProductRepository(database)
-    
-    # Configuration
-    app.config['SECRET_KEY'] = 'supersecretkey'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///store.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['COMPRESS_ALGORITHM'] = 'gzip'
-    app.config['CORS_HEADERS'] = 'Content-Type'
-    
+    if isinstance(database, SQLAlchemyDatabase):
+        # Initialize SQLAlchemyDatabase with app
+        database = SQLAlchemyDatabase(app)
+        # Create database tables
+        with app.app_context():
+            database.db.create_all()
+    else:
+        # Handle APIDatabase initialization
+        pass
+
     # Initialize extensions
-    db = SQLAlchemy(app)
+    bcrypt = Bcrypt(app)
+    login_manager = LoginManager(app)
+
+    # Initialize Repositories
+    user_repository = UserRepository(database)
+    product_repository = ProductRepository(database)
+    order_repository = OrderRepository(database)
+
+    # Initialize Services
+    user_service = UserService(user_repository, bcrypt, login_manager)
+    product_service = ProductService(product_repository)
+    order_service = OrderService(order_repository, product_service)
+
+    # Initialize extensions
     compress = Compress(app)
     cors = CORS(app)
     bcrypt = Bcrypt(app)
     login_manager = LoginManager(app)
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-    
-    # Logging configuration
-    logging.basicConfig(filename='app.log', level=logging.INFO)
-    
+
     # User model
     class User(db.Model, UserMixin):
         id = db.Column(db.Integer, primary_key=True)
@@ -60,11 +75,13 @@ def create_app():
         
     # Login manager user loader
     @login_manager.user_loader
+    @handle_errors
     def load_user(user_id):
         return User.query.get(int(user_id))
     
     # Routes
     @app.route('/register', methods=['POST'])
+    @handle_errors
     def register():
         data = request.get_json()
         hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
@@ -74,6 +91,7 @@ def create_app():
         return jsonify({'message': 'User registered successfully'})
     
     @app.route('/login', methods=['POST'])
+    @handle_errors
     def login():
         data = request.get_json()
         user = User.query.filter_by(username=data['username']).first()
@@ -85,11 +103,13 @@ def create_app():
     
     @app.route('/logout')
     @login_required
+    @handle_errors
     def logout():
         logout_user()
         return jsonify({'message': 'Logged out successfully'})
     
     @app.route('/products', methods=['GET'])
+    @handle_errors
     def get_products():
         products = Product.query.all()
         output = []
@@ -99,6 +119,7 @@ def create_app():
         return jsonify({'products': output})
     
     @app.route('/product/<int:product_id>', methods=['GET'])
+    @handle_errors
     def get_product(product_id):
         product = Product.query.get_or_404(product_id)
         product_data = {'id': product.id, 'name': product.name, 'price': product.price, 'stock': product.stock}
@@ -154,10 +175,6 @@ def create_app():
         db.session.rollback()
         return jsonify({'message': 'Internal server error'}), 500
     
-    # Database initialization
-    with app.app_context():
-        db.create_all()
-
     return app
 
 if __name__ == '__main__':

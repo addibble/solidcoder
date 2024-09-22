@@ -1,12 +1,11 @@
 # repositories/order_repository.py
 
 class OrderRepository:
-    def __init__(self, db_session):
-        self.db_session = db_session
+    def __init__(self, database):
+        self.database = database
 
     def add(self, order):
-        self.db_session.add(order)
-        self.db_session.commit()
+        return self.database.add_order(order)
 
     def get_by_user_id(self, user_id):
-        return Order.query.filter_by(user_id=user_id).all()
+        return self.database.get_orders_by_user_id(user_id)

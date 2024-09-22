@@ -12,3 +12,6 @@ class ProductRepository:
 
     def update(self, product):
         return self.database.update(product)
+
+    def add(self, product):
+        return self.database.add_product(product)

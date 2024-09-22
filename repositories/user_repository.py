@@ -12,4 +12,7 @@ class UserRepository:
         return User.query.get(user_id)
 
     def get_by_username(self, username):
-        return User.query.filter_by(username=username).first()
+        return self.database.get_orders_by_user_id
+
+    def add(self, user):
+        return self.database.add_user(user)
