@@ -44,3 +44,6 @@ class ProductService:
         if product:
             product.stock += quantity_change
             self.product_repository.update(product)
+
+    def update_product(self, product):
+        return self.product_repository.update(product)

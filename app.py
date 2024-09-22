@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_compress import Compress
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
@@ -52,27 +51,6 @@ def create_app(config_class=DevelopmentConfig):
     login_manager = LoginManager(app)
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
-    # User model
-    class User(db.Model, UserMixin):
-        id = db.Column(db.Integer, primary_key=True)
-        username = db.Column(db.String(150), unique=True, nullable=False)
-        password = db.Column(db.String(150), nullable=False)
-        email = db.Column(db.String(150), unique=True, nullable=False)
-        
-    # Product model
-    class Product(db.Model):
-        id = db.Column(db.Integer, primary_key=True)
-        name = db.Column(db.String(100), nullable=False)
-        price = db.Column(db.Float, nullable=False)
-        stock = db.Column(db.Integer, nullable=False)
-    
-    # Order model
-    class Order(db.Model):
-        id = db.Column(db.Integer, primary_key=True)
-        user_id = db.Column(db.Integer, nullable=False)
-        product_id = db.Column(db.Integer, nullable=False)
-        quantity = db.Column(db.Integer, nullable=False)
-        
     # Login manager user loader
     @login_manager.user_loader
     @handle_errors
