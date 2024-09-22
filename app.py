@@ -5,16 +5,19 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from itsdangerous import URLSafeTimedSerializer
 import logging
+import os
 
 from database.sqlalchemy_database import SQLAlchemyDatabase
 from decorators.error_handler import handle_errors
+from config import DevelopmentConfig, ProductionConfig
 
 
-def create_app(config_class=DevelopmentConfig):
+def create_app():
     # Logging configuration
     logging.basicConfig(filename='app.log', level=logging.INFO)
 
     app = Flask(__name__)
+    config_class = os.environ.get('FLASK_CONFIG', 'config.DevelopmentConfig')
     app.config.from_object(config_class)
 
     # Initialize Database

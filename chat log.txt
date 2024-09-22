@@ -56,7 +56,7 @@ If there are different strategies for calculating reports (e.g., by category, su
 	•	Avoid code duplication (DRY principle).
 
 Refactored Code
-xplanation of Refactoring Steps
+Explanation of Refactoring Steps
 
 	1.	Extracted get_all_products()
 	•	Responsible for retrieving all products from the database.
@@ -236,10 +236,6 @@ To further organize the application, consider using Flask Blueprints to modulari
 
 Use the Factory Pattern to manage the creation of services and repositories, enhancing configurability.
 
-3. Introduce Configuration Management
-
-Externalize configurations using environment variables or configuration files.
-
 Key Takeaways for Students
 
 	•	Understanding Enterprise Patterns: Recognize when and how to apply patterns like Service Layer and Repository.
@@ -248,6 +244,35 @@ Key Takeaways for Students
 	•	Professional Development: Prepare for enterprise-level coding standards and practices.
 
 Feel free to ask if you have any questions or need further clarification on any part of the refactoring process!
+
+I’d be happy to provide more detailed information on how to set up and load your configuration using app.config.from_object('config.Config').
+
+Understanding app.config.from_object('config.Config')
+
+The line app.config.from_object('config.Config') tells your Flask application to load configuration variables from a class named Config located in a module named config. This approach allows you to manage your application’s configuration in a separate, organized way, making it easier to handle different settings for development, testing, and production environments.
+
+Setting Up the Configuration Module (config.py)
+
+	1.	Create a config.py File:
+In your project directory, create a new file named config.py.
+your_project/
+├── app.py
+├── config.py
+├── services/
+├── repositories/
+└── ...
+
+	2.	Define Configuration Classes:
+In config.py, define a base Config class and additional classes for different environments, such as DevelopmentConfig and ProductionConfig. Each class will contain configuration variables relevant to that environment.
+Explanation:
+	•	Config Class: Contains default configurations that apply to all environments.
+	•	DevelopmentConfig and ProductionConfig: Inherit from Config and override specific settings.
+	•	Environment Variables: Use os.environ.get() to fetch sensitive or environment-specific values, allowing you to avoid hardcoding them.
+
+Loading Configuration in app.py
+
+Modify your create_app function in app.py to load the desired configuration class.
+
 
 user: can you please refactor process_bulk_orders into the new form as well
 
@@ -481,7 +506,7 @@ Explanation of Changes
 	4.	Setting Headers
 	•	headers dictionary:
 	•	Allows for additional headers, such as authentication tokens.
-    
+
 Benefits:
 
 	•	Dependency Inversion Principle: High-level modules do not depend on low-level modules but on abstractions.
