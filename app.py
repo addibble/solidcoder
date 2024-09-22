@@ -115,101 +115,26 @@ def create_app():
             order_data = {'order_id': order.id, 'product_name': product.name, 'quantity': order.quantity}
             output.append(order_data)
         return jsonify({'orders': output})
-    # Add this route to the existing routes in app.py
 
-# Updated inventory_report function with extracted methods
-def get_all_products():
-    return Product.query.all()
+    @app.route('/inventory_report', methods=['GET'])
+    def inventory_report():
+        report = product_service.generate_inventory_report()
+        return jsonify(report)
 
-def calculate_total_value(products):
-    return sum(product.price * product.stock for product in products)
+    @app.route('/process_bulk_orders', methods=['POST'])
+    @login_required
+    def process_bulk_orders_route():
+        data = request.get_json()
+        orders = data.get('orders', [])
+        processed_orders, total_revenue = order_service.process_bulk_orders(current_user.id, orders)
 
-def find_low_stock_items(products, threshold=10):
-    return [product.name for product in products if product.stock < threshold]
-
-def format_product_data(products):
-    return [
-        {
-            'id': product.id,
-            'name': product.name,
-            'price': product.price,
-            'stock': product.stock
+        response = {
+            'processed_orders': processed_orders,
+            'total_revenue': total_revenue,
+            'message': f"Processed {len(processed_orders)} orders."
         }
-        for product in products
-    ]
 
-@app.route('/inventory_report', methods=['GET'])
-def inventory_report():
-    products = get_all_products()
-    total_value = calculate_total_value(products)
-    low_stock_items = find_low_stock_items(products)
-    report = format_product_data(products)
-
-    response = {
-        'total_products': len(products),
-        'total_value': total_value,
-        'low_stock_items': low_stock_items,
-        'products': report
-    }
-    return jsonify(response)
-
-# Update process bulk orders endpoint
-def validate_orders(orders):
-    return [order for order in orders if 'product_id' in order and 'quantity' in order]
-
-def update_stock(product, quantity):
-    product.stock -= quantity
-
-def calculate_order_total(product, quantity):
-    return product.price * quantity
-
-def log_insufficient_stock(product):
-    logging.warning(f"Insufficient stock for product {product.id}")
-
-def process_order(order):
-    product = Product.query.get(order['product_id'])
-    if not product:
-        return None
-    if product.stock >= order['quantity']:
-        update_stock(product, order['quantity'])
-        order_total = calculate_order_total(product, order['quantity'])
-        db.session.add(Order(
-            user_id=current_user.id,
-            product_id=product.id,
-            quantity=order['quantity']
-        ))
-        return {
-            'product_id': product.id,
-            'quantity': order['quantity'],
-            'order_total': order_total
-        }
-    else:
-        log_insufficient_stock(product)
-        return None
-
-@app.route('/process_bulk_orders', methods=['POST'])
-@login_required
-def process_bulk_orders():
-    orders = request.get_json().get('orders', [])
-    valid_orders = validate_orders(orders)
-    processed_orders = []
-    total_revenue = 0
-
-    for order in valid_orders:
-        result = process_order(order)
-        if result:
-            processed_orders.append(result)
-            total_revenue += result['order_total']
-
-    db.session.commit()
-
-    response = {
-        'processed_orders': processed_orders,
-        'total_revenue': total_revenue,
-        'message': f"Processed {len(processed_orders)} orders."
-    }
-
-    return jsonify(response)
+        return jsonify(response)
 
     # Error handlers
     @app.errorhandler(404)

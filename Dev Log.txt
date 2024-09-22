@@ -1,0 +1,114 @@
+Scene: You are a junior developer at the Crud Factory, a company built from the ground up by Mr. Thomas Crud. Your grizzled coworker, Sal T. Sayler, is responsible for the backend code. You’ve been tasked with making the software work properly, and you’re about to dive into the codebase.
+
+You walk into the office where Sal is hunched over his computer, typing furiously.
+
+You: “Hey Sal, Mr. Crud asked me to help with the backend code. He wants me to ensure everything is running smoothly, especially the API endpoints. Mind if I take a look?”
+
+Sal: Grumbles “Sure kid, knock yourself out. Just don’t break anything. I’ve got a lot on my plate.”
+
+You sit down and start reviewing the code. You come across the inventory_report method in app.py.
+
+You: “Sal, I was looking at the inventory_report function. It’s quite long and seems to be doing a lot. It retrieves products, calculates total value, identifies low-stock items, and formats the report—all in one method.”
+
+Sal: “Yeah, what’s the problem? It gets the job done, doesn’t it?”
+
+You: “Well, it’s a bit hard to read and maintain. I think it’s violating the Single Responsibility Principle. Each function should ideally have one responsibility.”
+
+Sal raises an eyebrow.
+
+Sal: “Single Responsibility what now?”
+
+You: “It’s one of the SOLID principles in software design. Specifically, the Single Responsibility Principle states that a class or function should have only one reason to change. In our case, this method has multiple reasons.”
+
+Sal: Sighs “Alright, so what do you suggest?”
+
+You: “I think we can refactor the inventory_report method using the Extract Method pattern. We’ll break it down into smaller, more focused functions.”
+
+Sal: “Fine, show me what you mean.”
+
+You begin refactoring the code.
+
+You: “So here’s the original method. Now, I’ll extract each responsibility into its own function.”
+----COMMIT 1------
+
+
+Sal rubs his chin thoughtfully.
+
+Sal: “Hmm, I see what you did there. You’ve made the code more readable. Each function has a clear purpose.”
+
+You: “Exactly! This adheres to the Single Responsibility Principle. Plus, it’s easier to test and maintain. We also used meaningful names for functions, which is a clean code practice.”
+
+Sal: “Not bad, kid.”
+
+Just then, Mr. Crud walks in.
+
+Mr. Crud: “How’s everything going here?”
+
+You: “Great, Mr. Crud. We’re refactoring the inventory_report function to make it cleaner and more maintainable.”
+
+Mr. Crud: “Ah, excellent! As long as it helps us deliver the best to our customers.”
+
+You: “Absolutely. By the way, I noticed that our process_bulk_orders function is also quite long and complex. It might benefit from similar refactoring.”
+
+Mr. Crud: “Whatever you think is best. Sal, you okay with that?”
+
+Sal: Shrugs “Sure, the kid’s got some good ideas.”
+
+You turn back to Sal.
+
+You: “For process_bulk_orders, it’s doing multiple things: validating orders, checking stock, updating stock, calculating totals, and saving orders—all in one method.”
+
+Sal: “Yeah, it’s a beast. What do you propose?”
+
+You: “We can apply the Strategy Pattern to encapsulate the algorithms and use the Extract Method to break down the tasks.”
+
+Sal: “Show me.”
+
+You proceed to refactor process_bulk_orders.
+------COMMIT 2-------
+
+You: “Now, each function is responsible for a specific task. We’ve also avoided code duplication, following the DRY principle.”
+
+Sal: “This is much better. Easier to read and maintain.”
+
+Mr. Crud returns with a cup of coffee.
+
+Mr. Crud: “By the way, we’re planning to scale up our operations. We’ll need the software to handle more complex tasks and be ready for future growth.”
+
+You: “In that case, we might consider applying some enterprise application architecture patterns, like the Service Layer and Repository Pattern.”
+
+Sal: “Whoa, that’s some heavy stuff.”
+
+You: “It’ll help us separate concerns and make the codebase more scalable and testable.”
+
+Mr. Crud: “Sounds good. Go ahead.”
+
+You begin refactoring the codebase to include service and repository layers.
+-------COMMIT 3------
+
+You: “First, we’ll create service classes that handle business logic, and repository classes that handle data access. This follows the Dependency Inversion Principle from SOLID.”
+
+Sal: “Alright, let’s see it.”
+
+You create a ProductService.
+
+You update the route to use the service.
+
+Sal: “I see, the controller is now slim, delegating work to the service.”
+
+You: “Exactly. This separation makes it easier to manage complexity and scale the application.”
+
+You proceed to refactor process_bulk_orders similarly.
+
+In OrderService:
+In the route:
+
+Sal nods appreciatively.
+
+Sal: “This makes the code much cleaner. It’s also easier to test each component in isolation.”
+
+You: “Yes, and by injecting dependencies, we adhere to the Dependency Inversion Principle. High-level modules aren’t dependent on low-level modules but on abstractions.”
+
+Mr. Crud claps his hands.
+
+Mr. Crud: “Absolutely. Well, that's enough for today. We'll start working on those unit tests tomorrow."
