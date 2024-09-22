@@ -117,24 +117,33 @@ def create_app():
         return jsonify({'orders': output})
     # Add this route to the existing routes in app.py
 
-@app.route('/inventory_report', methods=['GET'])
-def inventory_report():
-    products = Product.query.all()
-    total_value = 0
-    low_stock_items = []
-    report = []
+# Updated inventory_report function with extracted methods
+def get_all_products():
+    return Product.query.all()
 
-    for product in products:
-        product_data = {
+def calculate_total_value(products):
+    return sum(product.price * product.stock for product in products)
+
+def find_low_stock_items(products, threshold=10):
+    return [product.name for product in products if product.stock < threshold]
+
+def format_product_data(products):
+    return [
+        {
             'id': product.id,
             'name': product.name,
             'price': product.price,
             'stock': product.stock
         }
-        report.append(product_data)
-        total_value += product.price * product.stock
-        if product.stock < 10:
-            low_stock_items.append(product.name)
+        for product in products
+    ]
+
+@app.route('/inventory_report', methods=['GET'])
+def inventory_report():
+    products = get_all_products()
+    total_value = calculate_total_value(products)
+    low_stock_items = find_low_stock_items(products)
+    report = format_product_data(products)
 
     response = {
         'total_products': len(products),
