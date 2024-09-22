@@ -1,14 +1,14 @@
 # repositories/product_repository.py
 
 class ProductRepository:
-    def __init__(self, db_session):
-        self.db_session = db_session
+    def __init__(self, database):
+        self.database = database
 
     def get_all(self):
-        return Product.query.all()
+        return self.database.get_all_products()
 
     def get_by_id(self, product_id):
-        return Product.query.get(product_id)
+        return self.database.get_product_by_id(product_id)
 
     def update(self, product):
-        self.db_session.commit()
+        return self.database.update(product)

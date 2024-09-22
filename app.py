@@ -10,6 +10,14 @@ import logging
 
 def create_app():
     app = Flask(__name__)
+
+    app.config.from_object('config.Config')
+
+    # Initialize Database
+    database = DatabaseFactory.create_database(app.config)
+
+    # Pass the database instance to services or repositories
+    product_repository = ProductRepository(database)
     
     # Configuration
     app.config['SECRET_KEY'] = 'supersecretkey'

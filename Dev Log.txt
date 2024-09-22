@@ -84,14 +84,13 @@ You: “It’ll help us separate concerns and make the codebase more scalable an
 Mr. Crud: “Sounds good. Go ahead.”
 
 You begin refactoring the codebase to include service and repository layers.
--------COMMIT 3------
 
 You: “First, we’ll create service classes that handle business logic, and repository classes that handle data access. This follows the Dependency Inversion Principle from SOLID.”
 
 Sal: “Alright, let’s see it.”
 
+-------COMMIT 3------
 You create a ProductService.
-
 You update the route to use the service.
 
 Sal: “I see, the controller is now slim, delegating work to the service.”
