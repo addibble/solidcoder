@@ -153,31 +153,54 @@ def inventory_report():
     }
     return jsonify(response)
 
+# Update process bulk orders endpoint
+def validate_orders(orders):
+    return [order for order in orders if 'product_id' in order and 'quantity' in order]
+
+def update_stock(product, quantity):
+    product.stock -= quantity
+
+def calculate_order_total(product, quantity):
+    return product.price * quantity
+
+def log_insufficient_stock(product):
+    logging.warning(f"Insufficient stock for product {product.id}")
+
+def process_order(order):
+    product = Product.query.get(order['product_id'])
+    if not product:
+        return None
+    if product.stock >= order['quantity']:
+        update_stock(product, order['quantity'])
+        order_total = calculate_order_total(product, order['quantity'])
+        db.session.add(Order(
+            user_id=current_user.id,
+            product_id=product.id,
+            quantity=order['quantity']
+        ))
+        return {
+            'product_id': product.id,
+            'quantity': order['quantity'],
+            'order_total': order_total
+        }
+    else:
+        log_insufficient_stock(product)
+        return None
+
 @app.route('/process_bulk_orders', methods=['POST'])
+@login_required
 def process_bulk_orders():
     orders = request.get_json().get('orders', [])
+    valid_orders = validate_orders(orders)
     processed_orders = []
     total_revenue = 0
-    for order in orders:
-        product = Product.query.get(order['product_id'])
-        if not product:
-            continue  # Skip if product does not exist
-        if product.stock >= order['quantity']:
-            product.stock -= order['quantity']
-            order_total = product.price * order['quantity']
-            total_revenue += order_total
-            processed_orders.append({
-                'product_id': product.id,
-                'quantity': order['quantity'],
-                'order_total': order_total
-            })
-            db.session.add(Order(
-                user_id=current_user.id,
-                product_id=product.id,
-                quantity=order['quantity']
-            ))
-        else:
-            logging.warning(f"Insufficient stock for product {product.id}")
+
+    for order in valid_orders:
+        result = process_order(order)
+        if result:
+            processed_orders.append(result)
+            total_revenue += result['order_total']
+
     db.session.commit()
 
     response = {
@@ -185,6 +208,7 @@ def process_bulk_orders():
         'total_revenue': total_revenue,
         'message': f"Processed {len(processed_orders)} orders."
     }
+
     return jsonify(response)
 
     # Error handlers
