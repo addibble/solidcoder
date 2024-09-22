@@ -432,8 +432,56 @@ Implementation:
 
 Example:
 # database/api_database.py
-note: also add the update method (or leave it for later)
 
+Add Update Method
+Certainly! I’d be happy to provide suggestions to improve your update method in the APIDatabase class.
+
+Understanding the Context
+
+	•	Purpose: The APIDatabase class is meant to interact with an external API to perform CRUD operations.
+	•	Requirement: The update method is needed by the product_repository to update product information via the API.
+	•	Current Implementation:
+Suggestions for Improvement
+
+	1.	Use the Appropriate HTTP Method
+	•	Issue: The POST method is generally used for creating new resources, not updating existing ones.
+	•	Solution: Use PUT or PATCH for updates.
+	•	PUT: Replaces the entire resource.
+	•	PATCH: Partially updates the resource.
+	•	Recommendation: Use PUT for updating the product.
+
+
+	2.	Include the Product ID in the URL
+	•	Issue: Updating a specific product requires identifying it in the URL.
+	•	Solution: Append the product.id to the endpoint.
+    	3.	Serialize the Product Data Properly
+	•	Issue: Passing data=product may not serialize the object correctly.
+	•	Solution: Convert the product object into a dictionary and use the json parameter to let requests handle JSON serialization.
+    	4.	Handle Exceptions and Errors
+	•	Issue: The current method doesn’t handle potential errors.
+	•	Solution: Use try-except blocks to catch exceptions and handle HTTP errors.
+
+	5.	Check the Response
+	•	Issue: The method doesn’t verify if the update was successful.
+	•	Solution: Check the response status code and handle different outcomes.
+
+Explanation of Changes
+
+	1.	URL Construction
+	•	url = f"{self.api_endpoint}/products/{product.id}"
+	•	Correctly points to the specific product resource that needs to be updated.
+	2.	Product Data Serialization
+	•	product_data dictionary:
+	•	Converts the product object into a JSON-serializable format.
+	•	Only includes fields that are necessary for the update.
+	3.	Using json Parameter
+	•	json=product_data
+	•	Automatically serializes the product_data dictionary to JSON.
+	•	Sets the ‘Content-Type’ header to ‘application/json’.
+	4.	Setting Headers
+	•	headers dictionary:
+	•	Allows for additional headers, such as authentication tokens.
+    
 Benefits:
 
 	•	Dependency Inversion Principle: High-level modules do not depend on low-level modules but on abstractions.
