@@ -1,3 +1,6 @@
+# Exercise 1
+
+
 Scene: You are a junior developer at the Crud Factory, a company built from the ground up by Mr. Thomas Crud. Your grizzled coworker, Sal T. Sayler, is responsible for the backend code. You’ve been tasked with making the software work properly, and you’re about to dive into the codebase.
 
 You walk into the office where Sal is hunched over his computer, typing furiously.
@@ -29,8 +32,8 @@ Sal: “Fine, show me what you mean.”
 You begin refactoring the code.
 
 You: “So here’s the original method. Now, I’ll extract each responsibility into its own function.”
-----COMMIT 1------
 
+# Exercise 2
 
 Sal rubs his chin thoughtfully.
 
@@ -65,7 +68,9 @@ You: “We can apply the Strategy Pattern to encapsulate the algorithms and use 
 Sal: “Show me.”
 
 You proceed to refactor process_bulk_orders.
-------COMMIT 2-------
+
+# Exercise 3
+
 
 You: “Now, each function is responsible for a specific task. We’ve also avoided code duplication, following the DRY principle.”
 
@@ -89,7 +94,7 @@ You: “First, we’ll create service classes that handle business logic, and re
 
 Sal: “Alright, let’s see it.”
 
--------COMMIT 3------
+# Exercise 4
 You create a ProductService.
 You update the route to use the service.
 
@@ -110,4 +115,21 @@ You: “Yes, and by injecting dependencies, we adhere to the Dependency Inversio
 
 Mr. Crud claps his hands.
 
-Mr. Crud: “Absolutely. Well, that's enough for today. We'll start working on those unit tests tomorrow."
+# Exercise 5
+
+You and Sal are sitting at your desks when Mr. Crud bursts into the room.
+
+Mr. Crud: “Folks, we’ve got a new challenge! Our inventory data is now provided by an external API. We need to integrate it without overhauling our entire system.”
+
+You: “No problem, Mr. Crud. We can use the Adapter Pattern to interface with the new API. This way, our existing services can use the data without any changes.”
+
+Sal: “Good thinking. We’ll create an adapter that matches our repository interface.”
+
+Implementing the Adapter
+
+You and Sal get to work.
+
+You: “I’ll create the APIDatabase class that acts as an adapter.”
+
+Sal: “Meanwhile, I’ll refactor our database initialization to use the Factory Pattern. That way, we can easily switch between the local database and the API.”
+

@@ -592,65 +592,11 @@ Product Repository
 # repositories/order_repository.py
 Modifying create_app in app.py
 
-Ensure that you correctly initialize the SQLAlchemyDatabase and pass it to your repositories and services.
-Important Notes
-
-	1.	No HTTP Requests in SQLAlchemyDatabase:
-	•	All database operations in SQLAlchemyDatabase should use SQLAlchemy ORM methods.
-	•	Do not use the requests library or make HTTP calls in this class.
-	2.	Consistency with Repositories:
-	•	Ensure that the methods provided by SQLAlchemyDatabase match the expectations of your repositories.
-	3.	Models Import:
-	•	Import your models (Product, User, Order) appropriately.
-	•	Make sure the models are correctly defined in the models package.
-	4.	Creating Database Tables:
-	•	Use database.db.create_all() within the application context to create tables when the app starts.
-	•	This is necessary if you’re using a local database and need to ensure tables are created.
-    	5.	Database Session:
-	•	Use self.session for all database operations in SQLAlchemyDatabase methods.
-	•	Commit changes to the database using self.session.commit().
-	6.	Error Handling:
-	•	Consider adding error handling in your database methods to manage exceptions.
-	•	For example, handle cases where records are not found or database transactions fail.
-	7.	Initialization of Extensions:
-	•	Ensure that other Flask extensions like Bcrypt and LoginManager are initialized with the app.
-	8.	Consistency Across Database Implementations:
-	•	Both SQLAlchemyDatabase and APIDatabase should expose the same interface (methods) so that repositories can use them interchangeably.
-	•	This is important for the Factory Pattern to work effectively.
-
-Adjusting DatabaseFactory
-
-Ensure that your DatabaseFactory correctly initializes the SQLAlchemyDatabase or APIDatabase based on the configuration.
-In create_app, we check if the database is SQLAlchemyDatabase and initialize it with the app.
-
-Ensuring Correct Application Flow
-
-	•	Repositories Use Database Classes: Repositories should use methods provided by the database classes, whether it’s SQLAlchemyDatabase or APIDatabase.
-	•	Services Use Repositories: Services should use repositories to perform business logic without worrying about the underlying data source.
-	•	Controllers Use Services: Flask route handlers (controllers) should use services to handle HTTP requests and responses.
-
-Example of Using the SQLAlchemyDatabase in Repositories and Services
-
-Product Repository Usage:
-# services/product_service.py
-
-
-Testing the Implementation
-
-	•	Run Migrations (if using Alembic): If you’re using Alembic for database migrations, make sure to generate and run migrations.
-	•	Test Database Operations: Write tests to ensure that database operations work as expected.
-	•	Check for Consistency: Verify that your application behaves the same whether using SQLAlchemyDatabase or APIDatabase.
-
-Final Thoughts
-
-By properly implementing the SQLAlchemyDatabase class and ensuring that it uses SQLAlchemy ORM methods, you maintain a clean separation between data access and business logic. This approach adheres to best practices and makes your application more maintainable and scalable.
-
-Let me know if you have any questions or need further assistance with any part of this implementation!
-
 
 3. Feature Envy
 
 Code Smell: A method in one class heavily relies on the internals of another class.
+in this case, the order service relies on the properties of the product, so the implementation can only ever be a sqlalchemy object.
 
 Solution Pattern: Move Method and Visitor Pattern
 
@@ -684,6 +630,36 @@ Benefits:
 
 	•	Encapsulation: Data and related behavior are kept together.
 	•	Law of Demeter: Reduces coupling between classes.
+
+NOTE: also need to update OrderService to create the new order based on the adapter, not the model
+
+Adjusting DatabaseFactory
+
+Ensure that your DatabaseFactory correctly initializes the SQLAlchemyDatabase
+In create_app, we check if the database is SQLAlchemyDatabase and initialize it with the app.
+
+Ensuring Correct Application Flow
+
+	•	Repositories Use Database Classes: Repositories should use methods provided by the database classes, whether it’s SQLAlchemyDatabase or APIDatabase.
+	•	Services Use Repositories: Services should use repositories to perform business logic without worrying about the underlying data source.
+	•	Controllers Use Services: Flask route handlers (controllers) should use services to handle HTTP requests and responses.
+
+Example of Using the SQLAlchemyDatabase in Repositories and Services
+
+Product Repository Usage:
+# services/product_service.py
+
+Testing the Implementation
+
+	•	Run Migrations (if using Alembic): If you’re using Alembic for database migrations, make sure to generate and run migrations.
+	•	Test Database Operations: Write tests to ensure that database operations work as expected.
+	•	Check for Consistency: Verify that your application behaves the same whether using SQLAlchemyDatabase or APIDatabase.
+
+Final Thoughts
+
+By properly implementing the SQLAlchemyDatabase class and ensuring that it uses SQLAlchemy ORM methods, you maintain a clean separation between data access and business logic. This approach adheres to best practices and makes your application more maintainable and scalable.
+
+Let me know if you have any questions or need further assistance with any part of this implementation!
 
 4. Large Class
 

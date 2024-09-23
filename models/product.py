@@ -5,3 +5,6 @@ class Product(db.Model):
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, nullable=False)
+
+    def is_in_stock(self, quantity):
+        return self.stock >= quantity

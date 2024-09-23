@@ -7,8 +7,8 @@ class OrderService:
 
     def create_order(self, user_id, product_id, quantity):
         product = self.product_service.get_product_by_id(product_id)
-        if product and product.stock >= quantity:
-            product.stock -= quantity
+        if product.is_in_stock(quantity):
+            product_service.update_stock(-quantity)
             order = Order(user_id=user_id, product_id=product_id, quantity=quantity)
             self.order_repository.add(order)
             return order
